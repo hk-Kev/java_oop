@@ -1,523 +1,446 @@
-# Java OOP Cheatsheet – One‑Page Reference (Project Version)
+<!-- # Java OOP Cheatsheet – Exam Ready (Single File `Main.java`)
+
 ## Table of Contents
-- [Purpose](#purpose)
-- [How to approach a typical OOP question](#how-to-approach-a-typical-oop-question)
-- [Copy‑pasteable blocks (fully commented)](#copy‑pasteable-blocks-fully-commented)
-  - [Validator](#validator)
-  - [Status enum](#status-enum)
-  - [BankBranch class](#bankbranch-class)
-  - [Customer class](#customer-class)
-  - [LoanOfficer class](#loanofficer-class)
-  - [LoanProduct class](#loanproduct-class)
-  - [Guarantor class](#guarantor-class)
-  - [LoanApplication class](#loanapplication-class)
-  - [LoanRepayment class](#loanrepayment-class)
-  - [Main class](#main-class)
-- [Validation checklist](#validation-checklist)
-## Purpose
-A single markdown file you can copy‑paste directly into a **single `Main.java`** to solve any of the mid‑term OOP exercises (e.g., loan‑application case study). It includes:
-- A concise *decision‑making guide* for typical exam sub‑questions (validation, object creation, menu flow, etc.)
-- Fully‑commented, copy‑pasteable Java code blocks using **plain arrays** (no `ArrayList`)
-- A reusable `Validator` helper with simple checks (no regex)
-- A quick validation checklist table
-- Searchable comment tags (`// == SECTION: …`) for fast navigation
+- [Purpose & Student Mindset](#purpose--student-mindset)
+- [How to Solve Any Exam Question in 5 Steps](#how-to-solve-any-exam-question-in-5-steps)
+- [Copy-Pasteable Code Blocks](#copy-pasteable-code-blocks)
+  - [Status Enum](#status-enum)
+  - [Class 1: BankBranch](#class-1-bankbranch)
+  - [Class 2: Customer (with Constructor Chaining)](#class-2-customer-with-constructor-chaining)
+  - [Class 3: LoanOfficer (with Object Reference)](#class-3-loanofficer-with-object-reference)
+  - [Class 4: LoanProduct (with Method Overloading)](#class-4-loanproduct-with-method-overloading)
+  - [Class 5: Guarantor](#class-5-guarantor)
+  - [Class 6: LoanApplication](#class-6-loanapplication)
+  - [Class 7: LoanRepayment](#class-7-loanrepayment)
+  - [Class 8: Main (Menu, Plain Arrays, Input Loops)](#class-8-main-menu-plain-arrays-input-loops)
+- [Quick Exam Tips & Corner-Cutting Checklist](#quick-exam-tips--corner-cutting-checklist)
 
 ---
 
-## How to approach a typical OOP question
-When you read a question, follow these mental steps. After each step, you’ll know which code snippet to copy‑paste.
-1. **Identify the domain objects** (e.g., `Customer`, `LoanProduct`).
-   - *Ask*: Which attributes are required? What types?
-   - *Do*: Choose the corresponding class template from the cheatsheet.
-2. **Determine required validations** for each attribute.
-   - *Ask*: Should the value be positive, non‑empty, within a range?
-   - *Do*: Use the `Validator` methods (see the checklist) and add `if` checks in the setter.
-3. **Check for relationships / associations** (e.g., a `LoanOfficer` belongs to a `BankBranch`).
-   - *Ask*: Is a reference required? Can it be `null`?
-   - *Do*: Validate the reference before assignment.
-4. **Decide if constructors need overloading** (e.g., `Customer` with optional email).
-   - *Ask*: Does the question mention optional fields?
-   - *Do*: Use the overloaded constructor provided.
-5. **Map the required menu actions** (register, submit, approve, repay, summary).
-   - *Ask*: Which actions are listed in the specification?
-   - *Do*: Implement the corresponding method in `Main` (see the menu block).
-6. **Plan the processing order** (registration → application → decision → repayment → summary).
-   - *Ask*: Does the question enforce a specific sequence?
-   - *Do*: Follow the order of method calls in `main`.
-7. **Add exception handling** for non‑numeric input.
-   - *Do*: Use the provided `readInt` / `readDouble` helpers that loop until a valid number is entered.
-8. **Run a quick sanity check**: compile and test each menu option.
-   - *Do*: `javac Main.java && java Main`.
+## Purpose & Student Mindset
 
-> **Tip**: Use `Ctrl+F "// == SECTION:"` to jump to the relevant block.
+This cheatsheet is crafted for a **2–3 hour university OOP exam**. 
+- **Zero bloat**: No unnecessary classes or complex enterprise patterns.
+- **Fast typing**: Domain classes are clean 1-line POJOs with full encapsulation.
+- **Input retry loops in `Main`**: If the user enters invalid data (negative numbers, letters, out-of-range ages), the console **loops on that specific field until they get it right** instead of crashing or restarting the whole form.
+- **Single file**: All classes are written to live together inside a single `Main.java` file.
 
 ---
 
-## Copy‑pasteable blocks (fully commented)
+## How to Solve Any Exam Question in 5 Steps
+
+1. **Copy Domain Class Templates**: For each required class, declare 5 `private` attributes, write the constructor, 1-line getters/setters, and `toString()`.
+2. **Setup Array Storage in `Main`**: Declare `ClassName[] list = new ClassName[100]; int count = 0;`.
+3. **Copy the 3 Input Helpers**: `readString()`, `readInt()`, and `readDouble()`. They use `try-catch` so user typos never crash your program.
+4. **Write Registration with `while (true)` Validation**: Prompt the user, check conditions (`if (valid) break;`), and create the object.
+5. **Add Transaction / Summary Logic**: For bookings or loans, lookup objects by ID, check business rules with `if / else`, and print reports.
+
+---
+
+## Copy-Pasteable Code Blocks
 
 ```java
-// == SECTION: VALIDATOR
-/**
- * Simple validation helper – no regular expressions, easy to understand.
- */
-public class Validator {
-    // Check that a string is not null/empty after trimming
-    public static boolean isNonEmpty(String s) {
-        return s != null && !s.trim().isEmpty();
-    }
-    // Positive integer check (>0)
-    public static boolean isPositiveInt(int i) {
-        return i > 0;
-    }
-    // Positive double check (>0.0)
-    public static boolean isPositiveDouble(double d) {
-        return d > 0.0;
-    }
-    // Very simple email validation (contains '@' and '.')
-    public static boolean isValidEmail(String e) {
-        return e != null && e.contains("@") && e.contains(".");
-    }
-}
-```
-
-```java
-// == SECTION: STATUS ENUM
+// ==========================================
+// SECTION: STATUS ENUM
+// ==========================================
 enum Status { PENDING, APPROVED, REJECTED }
 ```
 
 ```java
-// == SECTION: BANK BRANCH CLASS
-public class BankBranch {
-    private int branchId;          // >0, unique
-    private String branchName;     // non‑empty
-    private String branchCode;     // non‑empty
-    private String branchLocation; // non‑empty
-    private String branchManager; // non‑empty
+// ==========================================
+// SECTION: CLASS 1 - BankBranch
+// ==========================================
+class BankBranch {
+    private int branchId;
+    private String branchName;
+    private String branchCode;
+    private String branchLocation;
+    private String branchManager;
 
-    public BankBranch(int branchId, String branchName, String branchCode,
-                      String branchLocation, String branchManager) {
-        setBranchId(branchId);
-        setBranchName(branchName);
-        setBranchCode(branchCode);
-        setBranchLocation(branchLocation);
-        setBranchManager(branchManager);
-    }
-
-    // ----- Getters & Setters with validation -----
-    public int getBranchId() { return branchId; }
-    public void setBranchId(int branchId) {
-        if (!Validator.isPositiveInt(branchId))
-            throw new IllegalArgumentException("branchId must be positive");
+    public BankBranch(int branchId, String branchName, String branchCode, String branchLocation, String branchManager) {
         this.branchId = branchId;
-    }
-    public String getBranchName() { return branchName; }
-    public void setBranchName(String branchName) {
-        if (!Validator.isNonEmpty(branchName))
-            throw new IllegalArgumentException("branchName cannot be empty");
         this.branchName = branchName;
-    }
-    public String getBranchCode() { return branchCode; }
-    public void setBranchCode(String branchCode) {
-        if (!Validator.isNonEmpty(branchCode))
-            throw new IllegalArgumentException("branchCode cannot be empty");
         this.branchCode = branchCode;
-    }
-    public String getBranchLocation() { return branchLocation; }
-    public void setBranchLocation(String branchLocation) {
-        if (!Validator.isNonEmpty(branchLocation))
-            throw new IllegalArgumentException("branchLocation cannot be empty");
         this.branchLocation = branchLocation;
-    }
-    public String getBranchManager() { return branchManager; }
-    public void setBranchManager(String branchManager) {
-        if (!Validator.isNonEmpty(branchManager))
-            throw new IllegalArgumentException("branchManager cannot be empty");
         this.branchManager = branchManager;
     }
+
+    public int getBranchId() { return branchId; }
+    public void setBranchId(int branchId) { this.branchId = branchId; }
+
+    public String getBranchName() { return branchName; }
+    public void setBranchName(String branchName) { this.branchName = branchName; }
+
+    public String getBranchCode() { return branchCode; }
+    public void setBranchCode(String branchCode) { this.branchCode = branchCode; }
+
+    public String getBranchLocation() { return branchLocation; }
+    public void setBranchLocation(String branchLocation) { this.branchLocation = branchLocation; }
+
+    public String getBranchManager() { return branchManager; }
+    public void setBranchManager(String branchManager) { this.branchManager = branchManager; }
+
     @Override
     public String toString() {
-        return "BankBranch{id=" + branchId + ", name='" + branchName + "'}";
+        return "BankBranch [ID=" + branchId + ", Name=" + branchName + ", Code=" + branchCode + "]";
     }
 }
 ```
 
 ```java
-// == SECTION: CUSTOMER CLASS (with constructor overloading)
-public class Customer {
-    private int customerId;            // >0, unique
-    private String customerName;       // non‑empty
-    private String customerEmail;      // valid email or "Not provided"
-    private int customerAge;           // 18‑100
-    private double monthlyIncome;      // >0.0
+// ==========================================
+// SECTION: CLASS 2 - Customer (Constructor Overloading & Chaining)
+// ==========================================
+class Customer {
+    private int customerId;
+    private String customerName;
+    private String customerEmail;
+    private int customerAge;
+    private double monthlyIncome;
 
     // Full constructor
-    public Customer(int customerId, String customerName, String customerEmail,
-                    int customerAge, double monthlyIncome) {
-        setCustomerId(customerId);
-        setCustomerName(customerName);
-        setCustomerEmail(customerEmail);
-        setCustomerAge(customerAge);
-        setMonthlyIncome(monthlyIncome);
+    public Customer(int customerId, String customerName, String customerEmail, int customerAge, double monthlyIncome) {
+        this.customerId = customerId;
+        this.customerName = customerName;
+        this.customerEmail = customerEmail;
+        this.customerAge = customerAge;
+        this.monthlyIncome = monthlyIncome;
     }
-    // Overloaded constructor (email optional, income defaults to 0)
+
+    // Overloaded constructor with constructor chaining using this(...)
     public Customer(int customerId, String customerName, int customerAge) {
         this(customerId, customerName, "Not provided", customerAge, 0.0);
     }
-    // ----- Getters & Setters -----
+
     public int getCustomerId() { return customerId; }
-    public void setCustomerId(int customerId) {
-        if (!Validator.isPositiveInt(customerId))
-            throw new IllegalArgumentException("customerId must be positive");
-        this.customerId = customerId;
-    }
+    public void setCustomerId(int customerId) { this.customerId = customerId; }
+
     public String getCustomerName() { return customerName; }
-    public void setCustomerName(String customerName) {
-        if (!Validator.isNonEmpty(customerName))
-            throw new IllegalArgumentException("customerName cannot be empty");
-        this.customerName = customerName;
-    }
+    public void setCustomerName(String customerName) { this.customerName = customerName; }
+
     public String getCustomerEmail() { return customerEmail; }
-    public void setCustomerEmail(String customerEmail) {
-        if (!Validator.isValidEmail(customerEmail))
-            throw new IllegalArgumentException("invalid email");
-        this.customerEmail = customerEmail;
-    }
+    public void setCustomerEmail(String customerEmail) { this.customerEmail = customerEmail; }
+
     public int getCustomerAge() { return customerAge; }
-    public void setCustomerAge(int customerAge) {
-        if (customerAge < 18 || customerAge > 100)
-            throw new IllegalArgumentException("age out of range");
-        this.customerAge = customerAge;
-    }
+    public void setCustomerAge(int customerAge) { this.customerAge = customerAge; }
+
     public double getMonthlyIncome() { return monthlyIncome; }
-    public void setMonthlyIncome(double monthlyIncome) {
-        if (!Validator.isPositiveDouble(monthlyIncome))
-            throw new IllegalArgumentException("income must be positive");
-        this.monthlyIncome = monthlyIncome;
-    }
+    public void setMonthlyIncome(double monthlyIncome) { this.monthlyIncome = monthlyIncome; }
+
     @Override
     public String toString() {
-        return "Customer{id=" + customerId + ", name='" + customerName + "'}";
+        return "Customer [ID=" + customerId + ", Name=" + customerName + ", Age=" + customerAge + ", Income=" + monthlyIncome + "]";
     }
 }
 ```
 
 ```java
-// == SECTION: LOAN OFFICER CLASS
-public class LoanOfficer {
-    private int officerId;               // >0, unique
-    private String officerName;          // non‑empty
-    private String officerEmail;         // valid email
-    private int yearsOfExperience;       // >=0
-    private BankBranch branch;           // cannot be null
+// ==========================================
+// SECTION: CLASS 3 - LoanOfficer (Object Association)
+// ==========================================
+class LoanOfficer {
+    private int officerId;
+    private String officerName;
+    private String officerEmail;
+    private int yearsOfExperience;
+    private BankBranch branch; // Association
 
-    public LoanOfficer(int officerId, String officerName, String officerEmail,
-                       int yearsOfExperience, BankBranch branch) {
-        setOfficerId(officerId);
-        setOfficerName(officerName);
-        setOfficerEmail(officerEmail);
-        setYearsOfExperience(yearsOfExperience);
-        setBranch(branch);
-    }
-    // ----- Getters & Setters -----
-    public int getOfficerId() { return officerId; }
-    public void setOfficerId(int officerId) {
-        if (!Validator.isPositiveInt(officerId))
-            throw new IllegalArgumentException("officerId must be positive");
+    public LoanOfficer(int officerId, String officerName, String officerEmail, int yearsOfExperience, BankBranch branch) {
         this.officerId = officerId;
-    }
-    public String getOfficerName() { return officerName; }
-    public void setOfficerName(String officerName) {
-        if (!Validator.isNonEmpty(officerName))
-            throw new IllegalArgumentException("officerName cannot be empty");
         this.officerName = officerName;
-    }
-    public String getOfficerEmail() { return officerEmail; }
-    public void setOfficerEmail(String officerEmail) {
-        if (!Validator.isValidEmail(officerEmail))
-            throw new IllegalArgumentException("invalid email");
         this.officerEmail = officerEmail;
-    }
-    public int getYearsOfExperience() { return yearsOfExperience; }
-    public void setYearsOfExperience(int yearsOfExperience) {
-        if (yearsOfExperience < 0)
-            throw new IllegalArgumentException("experience cannot be negative");
         this.yearsOfExperience = yearsOfExperience;
-    }
-    public BankBranch getBranch() { return branch; }
-    public void setBranch(BankBranch branch) {
-        if (branch == null)
-            throw new IllegalArgumentException("branch cannot be null");
         this.branch = branch;
     }
+
+    public int getOfficerId() { return officerId; }
+    public void setOfficerId(int officerId) { this.officerId = officerId; }
+
+    public String getOfficerName() { return officerName; }
+    public void setOfficerName(String officerName) { this.officerName = officerName; }
+
+    public String getOfficerEmail() { return officerEmail; }
+    public void setOfficerEmail(String officerEmail) { this.officerEmail = officerEmail; }
+
+    public int getYearsOfExperience() { return yearsOfExperience; }
+    public void setYearsOfExperience(int yearsOfExperience) { this.yearsOfExperience = yearsOfExperience; }
+
+    public BankBranch getBranch() { return branch; }
+    public void setBranch(BankBranch branch) { this.branch = branch; }
+
     @Override
     public String toString() {
-        return "LoanOfficer{id=" + officerId + ", name='" + officerName + "'}";
+        return "LoanOfficer [ID=" + officerId + ", Name=" + officerName + ", Branch=" + (branch != null ? branch.getBranchName() : "None") + "]";
     }
 }
 ```
 
 ```java
-// == SECTION: LOAN PRODUCT CLASS (method overloading example)
-public class LoanProduct {
-    private int productId;                // >0, unique
-    private String productName;           // non‑empty
-    private double interestRate;          // >0 && <=30
-    private double maximumLoanAmount;     // >0
-    private int maximumRepaymentMonths;  // >0
+// ==========================================
+// SECTION: CLASS 4 - LoanProduct (Method Overloading)
+// ==========================================
+class LoanProduct {
+    private int productId;
+    private String productName;
+    private double interestRate;
+    private double maximumLoanAmount;
+    private int maximumRepaymentMonths;
 
-    public LoanProduct(int productId, String productName,
-                       double interestRate, double maximumLoanAmount,
-                       int maximumRepaymentMonths) {
-        setProductId(productId);
-        setProductName(productName);
-        setInterestRate(interestRate);
-        setMaximumLoanAmount(maximumLoanAmount);
-        setMaximumRepaymentMonths(maximumRepaymentMonths);
-    }
-    // ----- Getters & Setters -----
-    public int getProductId() { return productId; }
-    public void setProductId(int productId) {
-        if (!Validator.isPositiveInt(productId))
-            throw new IllegalArgumentException("productId must be positive");
+    public LoanProduct(int productId, String productName, double interestRate, double maximumLoanAmount, int maximumRepaymentMonths) {
         this.productId = productId;
-    }
-    public String getProductName() { return productName; }
-    public void setProductName(String productName) {
-        if (!Validator.isNonEmpty(productName))
-            throw new IllegalArgumentException("productName cannot be empty");
         this.productName = productName;
-    }
-    public double getInterestRate() { return interestRate; }
-    public void setInterestRate(double interestRate) {
-        if (!Validator.isPositiveDouble(interestRate) || interestRate > 30)
-            throw new IllegalArgumentException("interestRate must be >0 and <=30");
         this.interestRate = interestRate;
-    }
-    public double getMaximumLoanAmount() { return maximumLoanAmount; }
-    public void setMaximumLoanAmount(double maximumLoanAmount) {
-        if (!Validator.isPositiveDouble(maximumLoanAmount))
-            throw new IllegalArgumentException("maximumLoanAmount must be positive");
         this.maximumLoanAmount = maximumLoanAmount;
-    }
-    public int getMaximumRepaymentMonths() { return maximumRepaymentMonths; }
-    public void setMaximumRepaymentMonths(int maximumRepaymentMonths) {
-        if (!Validator.isPositiveInt(maximumRepaymentMonths))
-            throw new IllegalArgumentException("maximumRepaymentMonths must be positive");
         this.maximumRepaymentMonths = maximumRepaymentMonths;
     }
-    // ----- Overloaded repayment calculation -----
+
+    // Method 1: Default calculation using product's own rate and months
     public double calculateRepayable(double principal) {
-        // Calls the more general method with default rate and months
-        return calculateRepayable(principal, interestRate, maximumRepaymentMonths);
+        return calculateRepayable(principal, this.interestRate, this.maximumRepaymentMonths);
     }
+
+    // Method 2 (Overloaded): Calculation with custom rate and months
     public double calculateRepayable(double principal, double annualRate, int months) {
         double interest = principal * (annualRate / 100.0) * (months / 12.0);
         return principal + interest;
     }
+
+    public int getProductId() { return productId; }
+    public void setProductId(int productId) { this.productId = productId; }
+
+    public String getProductName() { return productName; }
+    public void setProductName(String productName) { this.productName = productName; }
+
+    public double getInterestRate() { return interestRate; }
+    public void setInterestRate(double interestRate) { this.interestRate = interestRate; }
+
+    public double getMaximumLoanAmount() { return maximumLoanAmount; }
+    public void setMaximumLoanAmount(double maximumLoanAmount) { this.maximumLoanAmount = maximumLoanAmount; }
+
+    public int getMaximumRepaymentMonths() { return maximumRepaymentMonths; }
+    public void setMaximumRepaymentMonths(int maximumRepaymentMonths) { this.maximumRepaymentMonths = maximumRepaymentMonths; }
+
     @Override
     public String toString() {
-        return "LoanProduct{id=" + productId + ", name='" + productName + "'}";
+        return "LoanProduct [ID=" + productId + ", Name=" + productName + ", Rate=" + interestRate + "%, MaxAmt=" + maximumLoanAmount + "]";
     }
 }
 ```
 
 ```java
-// == SECTION: GUARANTOR CLASS
-public class Guarantor {
-    private int guarantorId;            // >0, unique
-    private String guarantorName;       // non‑empty
-    private String guarantorEmail;      // valid email
-    private String guarantorPhone;      // non‑empty
-    private double monthlyIncome;       // >0
+// ==========================================
+// SECTION: CLASS 5 - Guarantor
+// ==========================================
+class Guarantor {
+    private int guarantorId;
+    private String guarantorName;
+    private String guarantorEmail;
+    private String guarantorPhone;
+    private double monthlyIncome;
 
-    public Guarantor(int guarantorId, String guarantorName,
-                     String guarantorEmail, String guarantorPhone,
-                     double monthlyIncome) {
-        setGuarantorId(guarantorId);
-        setGuarantorName(guarantorName);
-        setGuarantorEmail(guarantorEmail);
-        setGuarantorPhone(guarantorPhone);
-        setMonthlyIncome(monthlyIncome);
-    }
-    // ----- Getters & Setters -----
-    public int getGuarantorId() { return guarantorId; }
-    public void setGuarantorId(int guarantorId) {
-        if (!Validator.isPositiveInt(guarantorId))
-            throw new IllegalArgumentException("guarantorId must be positive");
+    public Guarantor(int guarantorId, String guarantorName, String guarantorEmail, String guarantorPhone, double monthlyIncome) {
         this.guarantorId = guarantorId;
-    }
-    public String getGuarantorName() { return guarantorName; }
-    public void setGuarantorName(String guarantorName) {
-        if (!Validator.isNonEmpty(guarantorName))
-            throw new IllegalArgumentException("guarantorName cannot be empty");
         this.guarantorName = guarantorName;
-    }
-    public String getGuarantorEmail() { return guarantorEmail; }
-    public void setGuarantorEmail(String guarantorEmail) {
-        if (!Validator.isValidEmail(guarantorEmail))
-            throw new IllegalArgumentException("invalid email");
         this.guarantorEmail = guarantorEmail;
-    }
-    public String getGuarantorPhone() { return guarantorPhone; }
-    public void setGuarantorPhone(String guarantorPhone) {
-        if (!Validator.isNonEmpty(guarantorPhone))
-            throw new IllegalArgumentException("guarantorPhone cannot be empty");
         this.guarantorPhone = guarantorPhone;
-    }
-    public double getMonthlyIncome() { return monthlyIncome; }
-    public void setMonthlyIncome(double monthlyIncome) {
-        if (!Validator.isPositiveDouble(monthlyIncome))
-            throw new IllegalArgumentException("income must be positive");
         this.monthlyIncome = monthlyIncome;
     }
+
+    public int getGuarantorId() { return guarantorId; }
+    public void setGuarantorId(int guarantorId) { this.guarantorId = guarantorId; }
+
+    public String getGuarantorName() { return guarantorName; }
+    public void setGuarantorName(String guarantorName) { this.guarantorName = guarantorName; }
+
+    public String getGuarantorEmail() { return guarantorEmail; }
+    public void setGuarantorEmail(String guarantorEmail) { this.guarantorEmail = guarantorEmail; }
+
+    public String getGuarantorPhone() { return guarantorPhone; }
+    public void setGuarantorPhone(String guarantorPhone) { this.guarantorPhone = guarantorPhone; }
+
+    public double getMonthlyIncome() { return monthlyIncome; }
+    public void setMonthlyIncome(double monthlyIncome) { this.monthlyIncome = monthlyIncome; }
+
     @Override
     public String toString() {
-        return "Guarantor{id=" + guarantorId + ", name='" + guarantorName + "'}";
+        return "Guarantor [ID=" + guarantorId + ", Name=" + guarantorName + ", Income=" + monthlyIncome + "]";
     }
 }
 ```
 
 ```java
-// == SECTION: LOAN APPLICATION CLASS
-public class LoanApplication {
-    private int applicationId;          // >0, unique
-    private Customer customer;          // cannot be null
-    private LoanProduct loanProduct;    // cannot be null
-    private Guarantor guarantor;        // cannot be null
-    private double requestedAmount;    // >0
+// ==========================================
+// SECTION: CLASS 6 - LoanApplication
+// ==========================================
+class LoanApplication {
+    private int applicationId;
+    private Customer customer;
+    private LoanProduct loanProduct;
+    private Guarantor guarantor;
+    private double requestedAmount;
 
-    public LoanApplication(int applicationId, Customer customer,
-                           LoanProduct loanProduct, Guarantor guarantor,
-                           double requestedAmount) {
-        setApplicationId(applicationId);
-        setCustomer(customer);
-        setLoanProduct(loanProduct);
-        setGuarantor(guarantor);
-        setRequestedAmount(requestedAmount);
-    }
-    // ----- Getters & Setters -----
-    public int getApplicationId() { return applicationId; }
-    public void setApplicationId(int applicationId) {
-        if (!Validator.isPositiveInt(applicationId))
-            throw new IllegalArgumentException("applicationId must be positive");
+    public LoanApplication(int applicationId, Customer customer, LoanProduct loanProduct, Guarantor guarantor, double requestedAmount) {
         this.applicationId = applicationId;
-    }
-    public Customer getCustomer() { return customer; }
-    public void setCustomer(Customer customer) {
-        if (customer == null)
-            throw new IllegalArgumentException("customer cannot be null");
         this.customer = customer;
-    }
-    public LoanProduct getLoanProduct() { return loanProduct; }
-    public void setLoanProduct(LoanProduct loanProduct) {
-        if (loanProduct == null)
-            throw new IllegalArgumentException("loanProduct cannot be null");
         this.loanProduct = loanProduct;
-    }
-    public Guarantor getGuarantor() { return guarantor; }
-    public void setGuarantor(Guarantor guarantor) {
-        if (guarantor == null)
-            throw new IllegalArgumentException("guarantor cannot be null");
         this.guarantor = guarantor;
-    }
-    public double getRequestedAmount() { return requestedAmount; }
-    public void setRequestedAmount(double requestedAmount) {
-        if (!Validator.isPositiveDouble(requestedAmount))
-            throw new IllegalArgumentException("requestedAmount must be positive");
         this.requestedAmount = requestedAmount;
     }
+
+    public int getApplicationId() { return applicationId; }
+    public void setApplicationId(int applicationId) { this.applicationId = applicationId; }
+
+    public Customer getCustomer() { return customer; }
+    public void setCustomer(Customer customer) { this.customer = customer; }
+
+    public LoanProduct getLoanProduct() { return loanProduct; }
+    public void setLoanProduct(LoanProduct loanProduct) { this.loanProduct = loanProduct; }
+
+    public Guarantor getGuarantor() { return guarantor; }
+    public void setGuarantor(Guarantor guarantor) { this.guarantor = guarantor; }
+
+    public double getRequestedAmount() { return requestedAmount; }
+    public void setRequestedAmount(double requestedAmount) { this.requestedAmount = requestedAmount; }
+
     @Override
     public String toString() {
-        return "LoanApplication{id=" + applicationId + ", customer=" +
-               customer.getCustomerId() + "}";
+        return "LoanApplication [AppID=" + applicationId + ", Customer=" + customer.getCustomerName() + 
+               ", Product=" + loanProduct.getProductName() + ", Amount=" + requestedAmount + "]";
     }
 }
 ```
 
 ```java
-// == SECTION: LOAN REPAYMENT CLASS
-public class LoanRepayment {
-    private int repaymentId;               // >0, unique
-    private LoanApplication loanApplication; // cannot be null
-    private double repaymentAmount;          // >0
-    private String repaymentDate;            // non‑empty
-    private LoanOfficer processedBy;         // cannot be null
+// ==========================================
+// SECTION: CLASS 7 - LoanRepayment
+// ==========================================
+class LoanRepayment {
+    private int repaymentId;
+    private LoanApplication loanApplication;
+    private double repaymentAmount;
+    private String repaymentDate;
+    private LoanOfficer processedBy;
 
-    public LoanRepayment(int repaymentId, LoanApplication loanApplication,
-                         double repaymentAmount, String repaymentDate,
-                         LoanOfficer processedBy) {
-        setRepaymentId(repaymentId);
-        setLoanApplication(loanApplication);
-        setRepaymentAmount(repaymentAmount);
-        setRepaymentDate(repaymentDate);
-        setProcessedBy(processedBy);
-    }
-    // ----- Getters & Setters -----
-    public int getRepaymentId() { return repaymentId; }
-    public void setRepaymentId(int repaymentId) {
-        if (!Validator.isPositiveInt(repaymentId))
-            throw new IllegalArgumentException("repaymentId must be positive");
+    public LoanRepayment(int repaymentId, LoanApplication loanApplication, double repaymentAmount, String repaymentDate, LoanOfficer processedBy) {
         this.repaymentId = repaymentId;
-    }
-    public LoanApplication getLoanApplication() { return loanApplication; }
-    public void setLoanApplication(LoanApplication loanApplication) {
-        if (loanApplication == null)
-            throw new IllegalArgumentException("loanApplication cannot be null");
         this.loanApplication = loanApplication;
-    }
-    public double getRepaymentAmount() { return repaymentAmount; }
-    public void setRepaymentAmount(double repaymentAmount) {
-        if (!Validator.isPositiveDouble(repaymentAmount))
-            throw new IllegalArgumentException("repaymentAmount must be positive");
         this.repaymentAmount = repaymentAmount;
-    }
-    public String getRepaymentDate() { return repaymentDate; }
-    public void setRepaymentDate(String repaymentDate) {
-        if (!Validator.isNonEmpty(repaymentDate))
-            throw new IllegalArgumentException("repaymentDate cannot be empty");
         this.repaymentDate = repaymentDate;
-    }
-    public LoanOfficer getProcessedBy() { return processedBy; }
-    public void setProcessedBy(LoanOfficer processedBy) {
-        if (processedBy == null)
-            throw new IllegalArgumentException("processedBy cannot be null");
         this.processedBy = processedBy;
     }
+
+    public int getRepaymentId() { return repaymentId; }
+    public void setRepaymentId(int repaymentId) { this.repaymentId = repaymentId; }
+
+    public LoanApplication getLoanApplication() { return loanApplication; }
+    public void setLoanApplication(LoanApplication loanApplication) { this.loanApplication = loanApplication; }
+
+    public double getRepaymentAmount() { return repaymentAmount; }
+    public void setRepaymentAmount(double repaymentAmount) { this.repaymentAmount = repaymentAmount; }
+
+    public String getRepaymentDate() { return repaymentDate; }
+    public void setRepaymentDate(String repaymentDate) { this.repaymentDate = repaymentDate; }
+
+    public LoanOfficer getProcessedBy() { return processedBy; }
+    public void setProcessedBy(LoanOfficer processedBy) { this.processedBy = processedBy; }
+
     @Override
     public String toString() {
-        return "LoanRepayment{id=" + repaymentId + ", amount=" + repaymentAmount + "}";
+        return "LoanRepayment [ID=" + repaymentId + ", AppID=" + loanApplication.getApplicationId() + 
+               ", Amount=" + repaymentAmount + ", Date=" + repaymentDate + "]";
     }
 }
 ```
 
 ```java
-// == SECTION: MAIN CLASS – MENU & ARRAY STORAGE
-import java.util.*;
+// ==========================================
+// SECTION: CLASS 8 - MAIN (Complete Menu, Storage & Validation)
+// ==========================================
+import java.util.Scanner;
 
 public class Main {
-    private static final int MAX = 100; // capacity for each entity array
-    // ---- Plain arrays for storage ----
+    private static final int MAX = 100;
+
+    // Plain arrays for storing records
     private static BankBranch[] branches = new BankBranch[MAX];
     private static int branchCount = 0;
+
     private static Customer[] customers = new Customer[MAX];
     private static int customerCount = 0;
+
     private static LoanOfficer[] officers = new LoanOfficer[MAX];
     private static int officerCount = 0;
+
     private static LoanProduct[] products = new LoanProduct[MAX];
     private static int productCount = 0;
+
     private static Guarantor[] guarantors = new Guarantor[MAX];
     private static int guarantorCount = 0;
+
     private static LoanApplication[] applications = new LoanApplication[MAX];
-    private static Status[] appStatus = new Status[MAX];
+    private static Status[] appStatus = new Status[MAX]; // Parallel array for status tracking
     private static int applicationCount = 0;
+
     private static LoanRepayment[] repayments = new LoanRepayment[MAX];
     private static int repaymentCount = 0;
-    private static final Scanner SC = new Scanner(System.in);
 
+    private static Scanner scanner = new Scanner(System.in);
+
+    // ==========================================
+    // 3 SIMPLE INPUT HELPERS (Loops until valid input)
+    // ==========================================
+    private static String readString(String prompt) {
+        while (true) {
+            System.out.print(prompt + ": ");
+            String s = scanner.nextLine().trim();
+            if (!s.isEmpty()) return s;
+            System.out.println("Error: Cannot be blank. Please try again.");
+        }
+    }
+
+    private static int readInt(String prompt) {
+        while (true) {
+            System.out.print(prompt + ": ");
+            try {
+                return Integer.parseInt(scanner.nextLine().trim());
+            } catch (Exception e) {
+                System.out.println("Error: Please enter a valid whole number.");
+            }
+        }
+    }
+
+    private static double readDouble(String prompt) {
+        while (true) {
+            System.out.print(prompt + ": ");
+            try {
+                return Double.parseDouble(scanner.nextLine().trim());
+            } catch (Exception e) {
+                System.out.println("Error: Please enter a valid decimal number.");
+            }
+        }
+    }
+
+    // ==========================================
+    // MAIN METHOD & CONSOLE MENU
+    // ==========================================
     public static void main(String[] args) {
         while (true) {
-            printMenu();
-            int choice = readInt("Choose option");
+            System.out.println("\n========== LOAN SYSTEM MENU ==========");
+            System.out.println("1. Register Bank Branch");
+            System.out.println("2. Register Customer");
+            System.out.println("3. Register Loan Officer");
+            System.out.println("4. Register Loan Product");
+            System.out.println("5. Register Guarantor");
+            System.out.println("6. Submit Loan Application");
+            System.out.println("7. Review Loan Application");
+            System.out.println("8. Approve / Reject Application");
+            System.out.println("9. Record Loan Repayment");
+            System.out.println("10. View Loan Summary / Records");
+            System.out.println("0. Exit");
+            System.out.println("======================================");
+
+            int choice = readInt("Enter your choice");
+
             switch (choice) {
                 case 1 -> registerBranch();
                 case 2 -> registerCustomer();
@@ -529,244 +452,499 @@ public class Main {
                 case 8 -> decideApplication();
                 case 9 -> recordRepayment();
                 case 10 -> displaySummary();
-                case 0 -> { System.out.println("Good‑bye!"); return; }
-                default -> System.out.println("Invalid choice – try again.");
+                case 0 -> {
+                    System.out.println("Exiting application. Goodbye!");
+                    return;
+                }
+                default -> System.out.println("Invalid option! Please choose between 0 and 10.");
             }
         }
     }
 
-    // ----- Helper methods for input -----
-    private static int readInt(String prompt) {
-        while (true) {
-            System.out.print(prompt + ": ");
-            try { return Integer.parseInt(SC.nextLine().trim()); }
-            catch (NumberFormatException e) { System.out.println("Please enter a valid integer."); }
-        }
-    }
-    private static double readDouble(String prompt) {
-        while (true) {
-            System.out.print(prompt + ": ");
-            try { return Double.parseDouble(SC.nextLine().trim()); }
-            catch (NumberFormatException e) { System.out.println("Please enter a valid number."); }
-        }
-    }
-    private static String readLine(String prompt) {
-        System.out.print(prompt + ": ");
-        return SC.nextLine();
-    }
-
-    // ----- Menu actions (each follows the validation checklist) -----
+    // ==========================================
+    // REGISTRATION METHODS (Input + Retry Loops)
+    // ==========================================
     private static void registerBranch() {
-        if (branchCount >= MAX) { System.out.println("No space for more branches."); return; }
-        int id = readInt("branchId");
-        if (findBranchIndex(id) != -1) { System.out.println("Duplicate branchId."); return; }
-        String name = readLine("branchName");
-        String code = readLine("branchCode");
-        String location = readLine("branchLocation");
-        String manager = readLine("branchManager");
-                try {
-            branches[branchCount++] = new BankBranch(id, name, code, location, manager);
-        } catch (IllegalArgumentException e) {
-            System.out.println(e.getMessage());
+        System.out.println("\n--- Register Bank Branch ---");
+        if (branchCount >= MAX) { System.out.println("Storage full!"); return; }
+
+        int id;
+        while (true) {
+            id = readInt("Enter Branch ID (>0)");
+            if (id <= 0) {
+                System.out.println("Branch ID must be positive.");
+            } else if (findBranchIndex(id) != -1) {
+                System.out.println("Branch ID already exists! Enter a unique ID.");
+            } else {
+                break;
+            }
         }
+
+        String name = readString("Enter Branch Name");
+        String code = readString("Enter Branch Code");
+        String location = readString("Enter Branch Location");
+        String manager = readString("Enter Branch Manager");
+
+        branches[branchCount++] = new BankBranch(id, name, code, location, manager);
+        System.out.println("Branch registered successfully!");
     }
 
     private static void registerCustomer() {
-        if (customerCount >= MAX) { System.out.println("No space for more customers."); return; }
-        int id = readInt("customerId");
-        if (findCustomerIndex(id) != -1) { System.out.println("Duplicate customerId."); return; }
-        String name = readLine("customerName");
-        String email = readLine("customerEmail");
-        int age = readInt("customerAge");
-        double income = readDouble("monthlyIncome");
-                try {
-            customers[customerCount++] = new Customer(id, name, email, age, income);
-        } catch (IllegalArgumentException e) {
-            System.out.println(e.getMessage());
+        System.out.println("\n--- Register Customer ---");
+        if (customerCount >= MAX) { System.out.println("Storage full!"); return; }
+
+        int id;
+        while (true) {
+            id = readInt("Enter Customer ID (>0)");
+            if (id <= 0) {
+                System.out.println("Customer ID must be positive.");
+            } else if (findCustomerIndex(id) != -1) {
+                System.out.println("Customer ID already exists! Enter a unique ID.");
+            } else {
+                break;
+            }
         }
+
+        String name = readString("Enter Customer Name");
+
+        String email;
+        while (true) {
+            email = readString("Enter Customer Email");
+            if (email.contains("@") && email.contains(".")) break;
+            System.out.println("Invalid email format (must contain @ and .). Try again.");
+        }
+
+        int age;
+        while (true) {
+            age = readInt("Enter Customer Age (18 - 100)");
+            if (age >= 18 && age <= 100) break;
+            System.out.println("Age must be between 18 and 100.");
+        }
+
+        double income;
+        while (true) {
+            income = readDouble("Enter Monthly Income (>0)");
+            if (income > 0) break;
+            System.out.println("Monthly income must be positive.");
+        }
+
+        customers[customerCount++] = new Customer(id, name, email, age, income);
+        System.out.println("Customer registered successfully!");
     }
 
     private static void registerOfficer() {
-        if (officerCount >= MAX) { System.out.println("No space for more officers."); return; }
-        int id = readInt("officerId");
-        if (findOfficerIndex(id) != -1) { System.out.println("Duplicate officerId."); return; }
-        String name = readLine("officerName");
-        String email = readLine("officerEmail");
-        int exp = readInt("yearsOfExperience");
-        int branchId = readInt("branchId (to associate)");
-        int bIdx = findBranchIndex(branchId);
-        if (bIdx == -1) { System.out.println("Branch not found."); return; }
-                try {
-            officers[officerCount++] = new LoanOfficer(id, name, email, exp, branches[bIdx]);
-        } catch (IllegalArgumentException e) {
-            System.out.println(e.getMessage());
+        System.out.println("\n--- Register Loan Officer ---");
+        if (officerCount >= MAX) { System.out.println("Storage full!"); return; }
+        if (branchCount == 0) { System.out.println("Please register at least one Bank Branch first!"); return; }
+
+        int id;
+        while (true) {
+            id = readInt("Enter Officer ID (>0)");
+            if (id <= 0) {
+                System.out.println("Officer ID must be positive.");
+            } else if (findOfficerIndex(id) != -1) {
+                System.out.println("Officer ID already exists! Enter a unique ID.");
+            } else {
+                break;
+            }
         }
+
+        String name = readString("Enter Officer Name");
+
+        String email;
+        while (true) {
+            email = readString("Enter Officer Email");
+            if (email.contains("@") && email.contains(".")) break;
+            System.out.println("Invalid email format.");
+        }
+
+        int exp;
+        while (true) {
+            exp = readInt("Enter Years of Experience (>=0)");
+            if (exp >= 0) break;
+            System.out.println("Experience cannot be negative.");
+        }
+
+        int bIdx;
+        while (true) {
+            int branchId = readInt("Enter Branch ID to assign officer");
+            bIdx = findBranchIndex(branchId);
+            if (bIdx != -1) break;
+            System.out.println("Branch not found! Try an existing branch ID.");
+        }
+
+        officers[officerCount++] = new LoanOfficer(id, name, email, exp, branches[bIdx]);
+        System.out.println("Loan Officer registered successfully!");
     }
 
     private static void registerProduct() {
-        if (productCount >= MAX) { System.out.println("No space for more products."); return; }
-        int id = readInt("productId");
-        if (findProductIndex(id) != -1) { System.out.println("Duplicate productId."); return; }
-        String name = readLine("productName");
-        double rate = readDouble("interestRate");
-        double maxAmt = readDouble("maximumLoanAmount");
-        int maxMonths = readInt("maximumRepaymentMonths");
-                try {
-            products[productCount++] = new LoanProduct(id, name, rate, maxAmt, maxMonths);
-        } catch (IllegalArgumentException e) {
-            System.out.println(e.getMessage());
+        System.out.println("\n--- Register Loan Product ---");
+        if (productCount >= MAX) { System.out.println("Storage full!"); return; }
+
+        int id;
+        while (true) {
+            id = readInt("Enter Product ID (>0)");
+            if (id <= 0) {
+                System.out.println("Product ID must be positive.");
+            } else if (findProductIndex(id) != -1) {
+                System.out.println("Product ID already exists!");
+            } else {
+                break;
+            }
         }
+
+        String name = readString("Enter Product Name");
+
+        double rate;
+        while (true) {
+            rate = readDouble("Enter Annual Interest Rate (0 to 30%)");
+            if (rate > 0 && rate <= 30) break;
+            System.out.println("Interest rate must be > 0 and <= 30.");
+        }
+
+        double maxAmt;
+        while (true) {
+            maxAmt = readDouble("Enter Maximum Loan Amount (>0)");
+            if (maxAmt > 0) break;
+            System.out.println("Max loan amount must be positive.");
+        }
+
+        int maxMonths;
+        while (true) {
+            maxMonths = readInt("Enter Maximum Repayment Months (1 to 120)");
+            if (maxMonths >= 1 && maxMonths <= 120) break;
+            System.out.println("Months must be between 1 and 120.");
+        }
+
+        products[productCount++] = new LoanProduct(id, name, rate, maxAmt, maxMonths);
+        System.out.println("Loan Product registered successfully!");
     }
 
     private static void registerGuarantor() {
-        if (guarantorCount >= MAX) { System.out.println("No space for more guarantors."); return; }
-        int id = readInt("guarantorId");
-        if (findGuarantorIndex(id) != -1) { System.out.println("Duplicate guarantorId."); return; }
-        String name = readLine("guarantorName");
-        String email = readLine("guarantorEmail");
-        String phone = readLine("guarantorPhone");
-        double income = readDouble("monthlyIncome");
-                try {
-            guarantors[guarantorCount++] = new Guarantor(id, name, email, phone, income);
-        } catch (IllegalArgumentException e) {
-            System.out.println(e.getMessage());
+        System.out.println("\n--- Register Guarantor ---");
+        if (guarantorCount >= MAX) { System.out.println("Storage full!"); return; }
+
+        int id;
+        while (true) {
+            id = readInt("Enter Guarantor ID (>0)");
+            if (id <= 0) {
+                System.out.println("Guarantor ID must be positive.");
+            } else if (findGuarantorIndex(id) != -1) {
+                System.out.println("Guarantor ID already exists!");
+            } else {
+                break;
+            }
         }
+
+        String name = readString("Enter Guarantor Name");
+
+        String email;
+        while (true) {
+            email = readString("Enter Guarantor Email");
+            if (email.contains("@") && email.contains(".")) break;
+            System.out.println("Invalid email format.");
+        }
+
+        String phone = readString("Enter Guarantor Phone");
+
+        double income;
+        while (true) {
+            income = readDouble("Enter Guarantor Monthly Income (>0)");
+            if (income > 0) break;
+            System.out.println("Income must be positive.");
+        }
+
+        guarantors[guarantorCount++] = new Guarantor(id, name, email, phone, income);
+        System.out.println("Guarantor registered successfully!");
     }
 
+    // ==========================================
+    // LOAN WORKFLOW & BUSINESS LOGIC
+    // ==========================================
     private static void submitApplication() {
-        if (applicationCount >= MAX) { System.out.println("No space for more applications."); return; }
-        int id = readInt("applicationId");
-        if (findApplicationIndex(id) != -1) { System.out.println("Duplicate applicationId."); return; }
-        int custId = readInt("customerId");
-        int custIdx = findCustomerIndex(custId);
-        if (custIdx == -1) { System.out.println("Customer not found."); return; }
-        int prodId = readInt("productId");
-        int prodIdx = findProductIndex(prodId);
-        if (prodIdx == -1) { System.out.println("Product not found."); return; }
-        int guarId = readInt("guarantorId");
-        int guarIdx = findGuarantorIndex(guarId);
-        if (guarIdx == -1) { System.out.println("Guarantor not found."); return; }
-        double amount = readDouble("requestedAmount");
-        // ----- Business rule checks (from checklist) -----
+        System.out.println("\n--- Submit Loan Application ---");
+        if (applicationCount >= MAX) { System.out.println("Storage full!"); return; }
+        if (customerCount == 0 || productCount == 0 || guarantorCount == 0) {
+            System.out.println("Please register Customer, Loan Product, and Guarantor first!");
+            return;
+        }
+
+        int appId;
+        while (true) {
+            appId = readInt("Enter Application ID (>0)");
+            if (appId <= 0) {
+                System.out.println("Application ID must be positive.");
+            } else if (findApplicationIndex(appId) != -1) {
+                System.out.println("Application ID already exists!");
+            } else {
+                break;
+            }
+        }
+
+        int custIdx;
+        while (true) {
+            int custId = readInt("Enter Customer ID");
+            custIdx = findCustomerIndex(custId);
+            if (custIdx != -1) break;
+            System.out.println("Customer not found! Try again.");
+        }
+
+        int prodIdx;
+        while (true) {
+            int prodId = readInt("Enter Product ID");
+            prodIdx = findProductIndex(prodId);
+            if (prodIdx != -1) break;
+            System.out.println("Product not found! Try again.");
+        }
+
+        int guarIdx;
+        while (true) {
+            int guarId = readInt("Enter Guarantor ID");
+            guarIdx = findGuarantorIndex(guarId);
+            if (guarIdx != -1) break;
+            System.out.println("Guarantor not found! Try again.");
+        }
+
         Customer cust = customers[custIdx];
         LoanProduct prod = products[prodIdx];
         Guarantor guar = guarantors[guarIdx];
-        if (cust.getCustomerAge() < 21) { System.out.println("Customer must be at least 21."); return; }
-        if (amount > prod.getMaximumLoanAmount()) { System.out.println("Amount exceeds product max."); return; }
-        if (amount > 12 * cust.getMonthlyIncome()) { System.out.println("Amount exceeds 12× customer income."); return; }
-        if (guar.getMonthlyIncome() < 0.3 * cust.getMonthlyIncome()) { System.out.println("Guarantor income too low."); return; }
-                try {
-            applications[applicationCount] = new LoanApplication(id, cust, prod, guar, amount);
-            appStatus[applicationCount] = Status.PENDING;
-            applicationCount++;
-            System.out.println("Application submitted and set to PENDING.");
-        } catch (IllegalArgumentException e) {
-            System.out.println(e.getMessage());
+
+        // Eligibility Check 1: Customer cannot be their own guarantor
+        if (cust.getCustomerId() == guar.getGuarantorId()) {
+            System.out.println("Rejection: Customer cannot act as their own guarantor!");
+            return;
         }
+
+        // Eligibility Check 2: Customer age >= 21
+        if (cust.getCustomerAge() < 21) {
+            System.out.println("Rejection: Customer must be at least 21 years old to apply.");
+            return;
+        }
+
+        // Eligibility Check 3: Guarantor income >= 30% of customer income
+        if (guar.getMonthlyIncome() < (0.30 * cust.getMonthlyIncome())) {
+            System.out.println("Rejection: Guarantor income must be at least 30% of customer's income.");
+            return;
+        }
+
+        // Requested Amount with checks
+        double amount;
+        while (true) {
+            amount = readDouble("Enter Requested Loan Amount");
+            if (amount <= 0) {
+                System.out.println("Amount must be positive.");
+            } else if (amount > prod.getMaximumLoanAmount()) {
+                System.out.println("Rejection: Amount exceeds Product maximum of " + prod.getMaximumLoanAmount());
+            } else if (amount > (12 * cust.getMonthlyIncome())) {
+                System.out.println("Rejection: Amount exceeds 12 times customer monthly income (" + (12 * cust.getMonthlyIncome()) + ")");
+            } else {
+                break;
+            }
+        }
+
+        // Demonstrate explicit casting requirement (cast double to int for display)
+        int castedAmount = (int) amount;
+        System.out.println("Application processed. Rounded Loan Amount: " + castedAmount);
+
+        applications[applicationCount] = new LoanApplication(appId, cust, prod, guar, amount);
         appStatus[applicationCount] = Status.PENDING;
         applicationCount++;
-        System.out.println("Application submitted and set to PENDING.");
+        System.out.println("Application submitted successfully with status: PENDING");
     }
 
     private static void reviewApplication() {
-        int appId = readInt("applicationId to review");
+        System.out.println("\n--- Review Loan Application ---");
+        int appId = readInt("Enter Application ID to review");
         int idx = findApplicationIndex(appId);
-        if (idx == -1) { System.out.println("Application not found."); return; }
-        System.out.println("Application: " + applications[idx]);
-        System.out.println("Status: " + appStatus[idx]);
+        if (idx == -1) {
+            System.out.println("Application not found.");
+            return;
+        }
+        System.out.println(applications[idx]);
+        System.out.println("Current Status: " + appStatus[idx]);
     }
 
     private static void decideApplication() {
-        int appId = readInt("applicationId to decide");
+        System.out.println("\n--- Approve / Reject Application ---");
+        int appId = readInt("Enter Application ID to decide");
         int idx = findApplicationIndex(appId);
-        if (idx == -1) { System.out.println("Application not found."); return; }
-        if (appStatus[idx] != Status.PENDING) { System.out.println("Only PENDING applications can be decided."); return; }
-        System.out.print("Approve (A) or Reject (R)? ");
-        String resp = SC.nextLine().trim().toUpperCase();
-        if (resp.equals("A")) { appStatus[idx] = Status.APPROVED; System.out.println("Application approved."); }
-        else if (resp.equals("R")) { appStatus[idx] = Status.REJECTED; System.out.println("Application rejected."); }
-        else { System.out.println("Invalid choice."); }
+        if (idx == -1) {
+            System.out.println("Application not found.");
+            return;
+        }
+        if (appStatus[idx] != Status.PENDING) {
+            System.out.println("Decision failed: Only PENDING applications can be decided!");
+            return;
+        }
+
+        while (true) {
+            String decision = readString("Enter decision: (A)pprove or (R)eject").toUpperCase();
+            if (decision.equals("A")) {
+                appStatus[idx] = Status.APPROVED;
+                System.out.println("Application has been APPROVED.");
+                break;
+            } else if (decision.equals("R")) {
+                appStatus[idx] = Status.REJECTED;
+                System.out.println("Application has been REJECTED.");
+                break;
+            } else {
+                System.out.println("Invalid choice! Enter 'A' or 'R'.");
+            }
+        }
     }
 
     private static void recordRepayment() {
-        if (repaymentCount >= MAX) { System.out.println("No space for more repayments."); return; }
-        int appId = readInt("applicationId to repay");
+        System.out.println("\n--- Record Loan Repayment ---");
+        if (repaymentCount >= MAX) { System.out.println("Storage full!"); return; }
+
+        int appId = readInt("Enter Application ID");
         int appIdx = findApplicationIndex(appId);
-        if (appIdx == -1) { System.out.println("Application not found."); return; }
-        if (appStatus[appIdx] != Status.APPROVED) { System.out.println("Only APPROVED applications can receive repayments."); return; }
-        int repId = readInt("repaymentId");
-        if (findRepaymentIndex(repId) != -1) { System.out.println("Duplicate repaymentId."); return; }
-        double amount = readDouble("repaymentAmount");
-        String date = readLine("repaymentDate");
-        int officerId = readInt("officerId processing this repayment");
-        int offIdx = findOfficerIndex(officerId);
-        if (offIdx == -1) { System.out.println("Officer not found."); return; }
-                try {
-            repayments[repaymentCount++] = new LoanRepayment(repId, applications[appIdx], amount, date, officers[offIdx]);
-            System.out.println("Repayment recorded.");
-        } catch (IllegalArgumentException e) {
-            System.out.println(e.getMessage());
+        if (appIdx == -1) {
+            System.out.println("Application not found.");
+            return;
         }
-        System.out.println("Repayment recorded.");
+        if (appStatus[appIdx] != Status.APPROVED) {
+            System.out.println("Rejection: Repayments can only be recorded for APPROVED applications!");
+            return;
+        }
+
+        LoanApplication app = applications[appIdx];
+        double totalRepayable = app.getLoanProduct().calculateRepayable(app.getRequestedAmount());
+
+        // Calculate how much has already been repaid
+        double totalRepaidSoFar = 0.0;
+        for (int i = 0; i < repaymentCount; i++) {
+            if (repayments[i].getLoanApplication().getApplicationId() == app.getApplicationId()) {
+                totalRepaidSoFar += repayments[i].getRepaymentAmount();
+            }
+        }
+
+        double remainingBalance = totalRepayable - totalRepaidSoFar;
+        if (remainingBalance <= 0) {
+            System.out.println("Loan is already fully repaid! Outstanding balance: 0.0");
+            return;
+        }
+
+        System.out.println("Total Repayable: " + totalRepayable + " | Paid so far: " + totalRepaidSoFar + " | Remaining: " + remainingBalance);
+
+        int repId;
+        while (true) {
+            repId = readInt("Enter Repayment ID (>0)");
+            if (repId <= 0) {
+                System.out.println("Repayment ID must be positive.");
+            } else if (findRepaymentIndex(repId) != -1) {
+                System.out.println("Repayment ID already exists!");
+            } else {
+                break;
+            }
+        }
+
+        double amount;
+        while (true) {
+            amount = readDouble("Enter Repayment Amount");
+            if (amount <= 0) {
+                System.out.println("Amount must be positive.");
+            } else if (amount > remainingBalance) {
+                System.out.println("Rejection: Overpayment! Max payable amount is " + remainingBalance);
+            } else {
+                break;
+            }
+        }
+
+        String date = readString("Enter Repayment Date (e.g. 2026-10-22)");
+
+        int offIdx;
+        while (true) {
+            int offId = readInt("Enter Officer ID processing this payment");
+            offIdx = findOfficerIndex(offId);
+            if (offIdx != -1) break;
+            System.out.println("Officer not found! Try an existing officer ID.");
+        }
+
+        repayments[repaymentCount++] = new LoanRepayment(repId, app, amount, date, officers[offIdx]);
+        System.out.println("Repayment recorded successfully! Remaining balance: " + (remainingBalance - amount));
     }
 
     private static void displaySummary() {
-        System.out.println("--- Loan Summary ---");
+        System.out.println("\n================ LOAN SUMMARY RECORDS ================");
+        if (applicationCount == 0) {
+            System.out.println("No loan applications submitted yet.");
+            return;
+        }
+
         for (int i = 0; i < applicationCount; i++) {
             LoanApplication app = applications[i];
             Status stat = appStatus[i];
             double totalRepayable = app.getLoanProduct().calculateRepayable(app.getRequestedAmount());
+
             double totalRepaid = 0.0;
             for (int j = 0; j < repaymentCount; j++) {
                 if (repayments[j].getLoanApplication().getApplicationId() == app.getApplicationId()) {
                     totalRepaid += repayments[j].getRepaymentAmount();
                 }
             }
-            double outstanding = totalRepayable - totalRepaid;
-            System.out.println("AppId:" + app.getApplicationId() + " Customer:" +
-                               app.getCustomer().getCustomerName() + " Status:" + stat +
-                               " Total:" + totalRepayable + " Repaid:" + totalRepaid +
-                               " Owes:" + outstanding);
+
+            double balance = totalRepayable - totalRepaid;
+            System.out.println("App ID: " + app.getApplicationId() +
+                               " | Customer: " + app.getCustomer().getCustomerName() +
+                               " | Product: " + app.getLoanProduct().getProductName() +
+                               " | Status: " + stat +
+                               " | Total Repayable: " + totalRepayable +
+                               " | Total Repaid: " + totalRepaid +
+                               " | Outstanding Balance: " + balance);
         }
+        System.out.println("======================================================");
     }
 
-    // ----- Helper search methods (linear search) -----
-    private static int findBranchIndex(int id) { for (int i = 0; i < branchCount; i++) if (branches[i].getBranchId() == id) return i; return -1; }
-    private static int findCustomerIndex(int id) { for (int i = 0; i < customerCount; i++) if (customers[i].getCustomerId() == id) return i; return -1; }
-    private static int findOfficerIndex(int id) { for (int i = 0; i < officerCount; i++) if (officers[i].getOfficerId() == id) return i; return -1; }
-    private static int findProductIndex(int id) { for (int i = 0; i < productCount; i++) if (products[i].getProductId() == id) return i; return -1; }
-    private static int findGuarantorIndex(int id) { for (int i = 0; i < guarantorCount; i++) if (guarantors[i].getGuarantorId() == id) return i; return -1; }
-    private static int findApplicationIndex(int id) { for (int i = 0; i < applicationCount; i++) if (applications[i].getApplicationId() == id) return i; return -1; }
-    private static int findRepaymentIndex(int id) { for (int i = 0; i < repaymentCount; i++) if (repayments[i].getRepaymentId() == id) return i; return -1; }
+    // ==========================================
+    // LINEAR SEARCH HELPERS (Find by ID)
+    // ==========================================
+    private static int findBranchIndex(int id) {
+        for (int i = 0; i < branchCount; i++) if (branches[i].getBranchId() == id) return i;
+        return -1;
+    }
+
+    private static int findCustomerIndex(int id) {
+        for (int i = 0; i < customerCount; i++) if (customers[i].getCustomerId() == id) return i;
+        return -1;
+    }
+
+    private static int findOfficerIndex(int id) {
+        for (int i = 0; i < officerCount; i++) if (officers[i].getOfficerId() == id) return i;
+        return -1;
+    }
+
+    private static int findProductIndex(int id) {
+        for (int i = 0; i < productCount; i++) if (products[i].getProductId() == id) return i;
+        return -1;
+    }
+
+    private static int findGuarantorIndex(int id) {
+        for (int i = 0; i < guarantorCount; i++) if (guarantors[i].getGuarantorId() == id) return i;
+        return -1;
+    }
+
+    private static int findApplicationIndex(int id) {
+        for (int i = 0; i < applicationCount; i++) if (applications[i].getApplicationId() == id) return i;
+        return -1;
+    }
+
+    private static int findRepaymentIndex(int id) {
+        for (int i = 0; i < repaymentCount; i++) if (repayments[i].getRepaymentId() == id) return i;
+        return -1;
+    }
 }
 ```
 
 ---
 
-## Validation checklist (quick reference)
-| Type | Check |
-|------|-------|
-| `int` id | positive & unique |
-| `String` name | non‑empty |
-| `String` email | contains `@` and `.` |
-| age | 18‑100 (customer) |
-| income | positive |
-| officer experience | non‑negative |
-| loan amount | >0, ≤ product max, ≤ 12×customer income |
-| guarantor income | ≥ 30 % of customer income |
-| interest rate | >0 and ≤30 |
-| repayment months | 1‑120 |
-| cust ≠ guarantor | cannot be same person |
+## Quick Exam Tips & Corner-Cutting Checklist
 
----
-
-*Save this file as `Main.java` (or paste the blocks into your own project) and run:* 
-```
-javac Main.java
-java Main
-```
-The menu will guide you through all required actions.
-
----
-
-*End of cheatsheet.*
+| Task | Student Shortcut |
+|---|---|
+| **Adding a new class** | Copy any class above. Keep 5 `private` attributes, constructor, 1-line getters/setters, and `toString()`. Takes under 60 seconds. |
+| **Constructor Chaining** | Just write `this(id, name, "Not provided", age, 0.0);` inside the smaller constructor. |
+| **Input Crash Prevention** | Always use the 3 helpers: `readString()`, `readInt()`, and `readDouble()`. Never use raw `scanner.nextInt()` (it causes newline buffer bugs). |
+| **Input Retries** | Use `while (true) { int val = readInt(...); if (condition) break; print("Error"); }`. |
+| **Explicit Casting Requirement** | Just write `int rounded = (int) doubleValue;` before saving or printing. |
+| **Searching Records** | Use the 2-line `for` loop helper: `for (int i = 0; i < count; i++) if (arr[i].getId() == id) return i; return -1;`. | -->
