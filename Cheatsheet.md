@@ -1,10 +1,9 @@
-<!-- # Java OOP Cheatsheet – Exam Ready (Single File `Main.java`)
+# Java OOP Cheatsheet – Exam Ready (Single File `Main.java`)
 
 ## Table of Contents
 - [Purpose & Student Mindset](#purpose--student-mindset)
 - [How to Solve Any Exam Question in 5 Steps](#how-to-solve-any-exam-question-in-5-steps)
 - [Copy-Pasteable Code Blocks](#copy-pasteable-code-blocks)
-  - [Status Enum](#status-enum)
   - [Class 1: BankBranch](#class-1-bankbranch)
   - [Class 2: Customer (with Constructor Chaining)](#class-2-customer-with-constructor-chaining)
   - [Class 3: LoanOfficer (with Object Reference)](#class-3-loanofficer-with-object-reference)
@@ -20,9 +19,11 @@
 ## Purpose & Student Mindset
 
 This cheatsheet is crafted for a **2–3 hour university OOP exam**. 
-- **Zero bloat**: No unnecessary classes or complex enterprise patterns.
+- **Zero bloat**: No unnecessary classes, enums, or complex enterprise patterns.
 - **Fast typing**: Domain classes are clean 1-line POJOs with full encapsulation.
 - **Input retry loops in `Main`**: If the user enters invalid data (negative numbers, letters, out-of-range ages), the console **loops on that specific field until they get it right** instead of crashing or restarting the whole form.
+- **Parallel `String[]` for Status**: Status is tracked simply using `String[] appStatus` (`"PENDING"`, `"APPROVED"`, `"REJECTED"`).
+- **Universal Java**: Standard `switch-case` compatible with all Java versions (Java 8 to 21+).
 - **Single file**: All classes are written to live together inside a single `Main.java` file.
 
 ---
@@ -38,13 +39,6 @@ This cheatsheet is crafted for a **2–3 hour university OOP exam**.
 ---
 
 ## Copy-Pasteable Code Blocks
-
-```java
-// ==========================================
-// SECTION: STATUS ENUM
-// ==========================================
-enum Status { PENDING, APPROVED, REJECTED }
-```
 
 ```java
 // ==========================================
@@ -378,7 +372,7 @@ public class Main {
     private static int guarantorCount = 0;
 
     private static LoanApplication[] applications = new LoanApplication[MAX];
-    private static Status[] appStatus = new Status[MAX]; // Parallel array for status tracking
+    private static String[] appStatus = new String[MAX]; // Parallel array for status ("PENDING", "APPROVED", "REJECTED")
     private static int applicationCount = 0;
 
     private static LoanRepayment[] repayments = new LoanRepayment[MAX];
@@ -442,21 +436,41 @@ public class Main {
             int choice = readInt("Enter your choice");
 
             switch (choice) {
-                case 1 -> registerBranch();
-                case 2 -> registerCustomer();
-                case 3 -> registerOfficer();
-                case 4 -> registerProduct();
-                case 5 -> registerGuarantor();
-                case 6 -> submitApplication();
-                case 7 -> reviewApplication();
-                case 8 -> decideApplication();
-                case 9 -> recordRepayment();
-                case 10 -> displaySummary();
-                case 0 -> {
+                case 1:
+                    registerBranch();
+                    break;
+                case 2:
+                    registerCustomer();
+                    break;
+                case 3:
+                    registerOfficer();
+                    break;
+                case 4:
+                    registerProduct();
+                    break;
+                case 5:
+                    registerGuarantor();
+                    break;
+                case 6:
+                    submitApplication();
+                    break;
+                case 7:
+                    reviewApplication();
+                    break;
+                case 8:
+                    decideApplication();
+                    break;
+                case 9:
+                    recordRepayment();
+                    break;
+                case 10:
+                    displaySummary();
+                    break;
+                case 0:
                     System.out.println("Exiting application. Goodbye!");
                     return;
-                }
-                default -> System.out.println("Invalid option! Please choose between 0 and 10.");
+                default:
+                    System.out.println("Invalid option! Please choose between 0 and 10.");
             }
         }
     }
@@ -747,7 +761,7 @@ public class Main {
         System.out.println("Application processed. Rounded Loan Amount: " + castedAmount);
 
         applications[applicationCount] = new LoanApplication(appId, cust, prod, guar, amount);
-        appStatus[applicationCount] = Status.PENDING;
+        appStatus[applicationCount] = "PENDING";
         applicationCount++;
         System.out.println("Application submitted successfully with status: PENDING");
     }
@@ -772,7 +786,7 @@ public class Main {
             System.out.println("Application not found.");
             return;
         }
-        if (appStatus[idx] != Status.PENDING) {
+        if (!"PENDING".equals(appStatus[idx])) {
             System.out.println("Decision failed: Only PENDING applications can be decided!");
             return;
         }
@@ -780,11 +794,11 @@ public class Main {
         while (true) {
             String decision = readString("Enter decision: (A)pprove or (R)eject").toUpperCase();
             if (decision.equals("A")) {
-                appStatus[idx] = Status.APPROVED;
+                appStatus[idx] = "APPROVED";
                 System.out.println("Application has been APPROVED.");
                 break;
             } else if (decision.equals("R")) {
-                appStatus[idx] = Status.REJECTED;
+                appStatus[idx] = "REJECTED";
                 System.out.println("Application has been REJECTED.");
                 break;
             } else {
@@ -803,7 +817,7 @@ public class Main {
             System.out.println("Application not found.");
             return;
         }
-        if (appStatus[appIdx] != Status.APPROVED) {
+        if (!"APPROVED".equals(appStatus[appIdx])) {
             System.out.println("Rejection: Repayments can only be recorded for APPROVED applications!");
             return;
         }
@@ -874,7 +888,7 @@ public class Main {
 
         for (int i = 0; i < applicationCount; i++) {
             LoanApplication app = applications[i];
-            Status stat = appStatus[i];
+            String stat = appStatus[i];
             double totalRepayable = app.getLoanProduct().calculateRepayable(app.getRequestedAmount());
 
             double totalRepaid = 0.0;
@@ -947,4 +961,5 @@ public class Main {
 | **Input Crash Prevention** | Always use the 3 helpers: `readString()`, `readInt()`, and `readDouble()`. Never use raw `scanner.nextInt()` (it causes newline buffer bugs). |
 | **Input Retries** | Use `while (true) { int val = readInt(...); if (condition) break; print("Error"); }`. |
 | **Explicit Casting Requirement** | Just write `int rounded = (int) doubleValue;` before saving or printing. |
-| **Searching Records** | Use the 2-line `for` loop helper: `for (int i = 0; i < count; i++) if (arr[i].getId() == id) return i; return -1;`. | -->
+| **Searching Records** | Use the 2-line `for` loop helper: `for (int i = 0; i < count; i++) if (arr[i].getId() == id) return i; return -1;`. |
+| **Status Tracking** | Use a simple `String[] status = new String[MAX];` and store `"PENDING"`, `"APPROVED"`, or `"REJECTED"`. |
